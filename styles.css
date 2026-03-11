@@ -113,6 +113,24 @@
         align-items: flex-start;
       }
 
+      .doc-header-main {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        min-width: 0;
+      }
+
+      .doc-profile-image {
+        width: 112px;
+        height: 140px;
+        object-fit: cover;
+        object-position: center top;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: #f3f4f6;
+        flex-shrink: 0;
+      }
+
       .doc-title {
         margin: 0;
         font-size: var(--fs-title);
@@ -254,6 +272,19 @@
         font-size: var(--fs-subtitle);
       }
 
+      .project-title-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .project-inline-link {
+        color: var(--accent);
+        font-size: var(--fs-caption);
+        font-weight: 600;
+      }
+
       .project-one-line {
         margin: var(--space-1) 0 0;
         color: var(--muted);
@@ -316,6 +347,40 @@
         margin-top: 8px;
         color: var(--muted);
         font-size: var(--fs-caption);
+      }
+
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--space-3);
+      }
+
+      .dashboard-figure {
+        margin: 0;
+      }
+
+      .dashboard-image,
+      .dashboard-placeholder {
+        width: 100%;
+        min-height: 220px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: linear-gradient(180deg, #fbfcfe 0%, #eef3f9 100%);
+      }
+
+      .dashboard-image {
+        display: block;
+        object-fit: contain;
+        padding: 10px;
+      }
+
+      .dashboard-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--muted);
+        font-size: var(--fs-caption);
+        letter-spacing: 0.04em;
       }
 
       .project-grid {
@@ -428,13 +493,18 @@
           display: grid;
         }
 
+        .doc-header-main {
+          align-items: flex-start;
+        }
+
         .meta-list {
           min-width: 0;
         }
 
         .summary-grid,
         .project-grid,
-        .triple-grid {
+        .triple-grid,
+        .dashboard-grid {
           grid-template-columns: 1fr;
         }
 
