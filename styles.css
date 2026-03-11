@@ -115,14 +115,31 @@
 
       .doc-header-main {
         display: flex;
-        align-items: center;
-        gap: 16px;
+        align-items: flex-start;
+        gap: 20px;
+        min-width: 0;
+        width: 100%;
+      }
+
+      .doc-header-content {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 28px;
+        width: 100%;
         min-width: 0;
       }
 
+      .doc-header-copy {
+        flex: 1 1 auto;
+        min-width: 0;
+        max-width: 520px;
+        padding-top: 4px;
+      }
+
       .doc-profile-image {
-        width: 112px;
-        height: 140px;
+        width: 132px;
+        height: 168px;
         object-fit: cover;
         object-position: center top;
         border-radius: 8px;
@@ -154,7 +171,9 @@
         padding: 0;
         display: grid;
         gap: var(--space-1);
-        min-width: 260px;
+        min-width: 280px;
+        max-width: 320px;
+        padding-top: 6px;
       }
 
       .meta-label {
@@ -258,6 +277,11 @@
         margin-top: var(--space-4);
         background: #fff;
         break-inside: avoid;
+      }
+
+      .project-leading {
+        break-inside: avoid;
+        page-break-inside: avoid;
       }
 
       .project-header {
@@ -497,8 +521,20 @@
           align-items: flex-start;
         }
 
+        .doc-header-content {
+          display: grid;
+          gap: var(--space-3);
+        }
+
+        .doc-header-copy {
+          max-width: none;
+          padding-top: 0;
+        }
+
         .meta-list {
           min-width: 0;
+          max-width: none;
+          padding-top: 0;
         }
 
         .summary-grid,
@@ -550,19 +586,24 @@
           text-decoration: none;
         }
 
-        a[href]::after {
-          content: " (" attr(href) ")";
-          font-size: 8.6pt;
-          color: #555;
-        }
-
         .section,
-        .project-entry,
+        .project-leading,
         .highlight-item,
         .timeline li,
         .info-block {
           break-inside: avoid;
           page-break-inside: avoid;
+        }
+
+        .project-entry {
+          break-inside: auto;
+          page-break-inside: auto;
+        }
+
+        .project-header,
+        .subsection-title {
+          break-after: avoid;
+          page-break-after: avoid;
         }
       }
     

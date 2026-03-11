@@ -3,8 +3,6 @@ const portfolioData = {
   header: {
     name: '김효식',
     role: '신입 백엔드 엔지니어',
-    oneLine:
-      '정합성과 운영 관측성을 우선해 서비스 흐름을 설계하는 백엔드 엔지니어입니다.',
     photo: {
       src: 'img/김효식_사진.png',
       alt: '김효식 프로필 사진',
@@ -17,41 +15,7 @@ const portfolioData = {
         'https://www.notion.so/22509bd4b28c8099a3edcedc03db4905?source=copy_link',
     },
   },
-  toc: [
-    { label: 'About', href: '#about-section' },
-    { label: 'Tech Stack', href: '#tech-stack-section' },
-    { label: 'Projects', href: '#projects-section' },
-    {
-      label: 'Engineering Highlights',
-      href: '#engineering-highlights-section',
-    },
-    { label: 'Experience', href: '#experience-section' },
-    { label: 'Education / Certificates / Awards', href: '#education-section' },
-    { label: 'Contact', href: '#contact-section' },
-  ],
-  summary: {
-    lines: [
-      '동시성 제어, 인증 흐름, 운영 관측성처럼 백엔드 서비스의 신뢰성을 좌우하는 문제를 구조적으로 정의하고 해결해 왔습니다.',
-      'Spring Boot 기반 API 서버를 설계하며 트랜잭션 경계, 데이터 정합성, 예외 응답 표준화를 함께 고려했습니다.',
-      '문제 해결을 코드 단위에만 두지 않고 테스트 시나리오, 문서화, 모니터링까지 연결해 운영 가능한 형태로 마무리하는 것을 중요하게 생각합니다.',
-    ],
-    keywords: [
-      '데이터 정합성',
-      '운영 안정성',
-      '문제 해결',
-      '성능 개선',
-      '협업',
-    ],
-    metrics: [
-      { key: '프로젝트 수', value: '2개 메인 백엔드 프로젝트' },
-      { key: '주요 기술', value: 'Spring Boot, Redis, PostgreSQL, Kafka' },
-      { key: '관심 분야', value: '동시성 제어, 인증/인가, 운영 관측성' },
-      {
-        key: '협업 경험',
-        value: '팀 프로젝트, API 문서화, Git 기반 협업 경험',
-      },
-    ],
-  },
+
   about: {
     paragraphs: [
       '복잡한 요구사항을 그대로 구현하기보다, 먼저 상태 변화와 책임 경계를 나눠 문제를 단순한 흐름으로 정리하는 개발자입니다.',
@@ -59,38 +23,12 @@ const portfolioData = {
       '동시성 제어, 인증 흐름, 장애 대응, 모니터링처럼 실제 운영에서 시스템 신뢰성을 높이는 기술 영역에 관심이 많습니다.',
     ],
   },
-  techStack: [
-    {
-      category: 'Language',
-      skills: '[예: Java, Kotlin, SQL]',
-      note: '[언어 선택 기준 또는 활용 경험 한 줄 설명]',
-    },
-    {
-      category: 'Backend',
-      skills: '[예: Spring Boot, JPA, QueryDSL]',
-      note: '[API 서버 설계 및 비즈니스 로직 구현 경험]',
-    },
-    {
-      category: 'Database',
-      skills: '[예: MySQL, PostgreSQL, Redis]',
-      note: '[데이터 모델링/트랜잭션/정합성 고려 경험]',
-    },
-    {
-      category: 'Infra / DevOps',
-      skills: '[예: Docker, AWS EC2, Nginx, GitHub Actions]',
-      note: '[배포 자동화 및 운영 안정성 관점의 경험]',
-    },
-    {
-      category: 'Tools / Collaboration',
-      skills: '[예: Git, Jira, Notion, Slack]',
-      note: '[협업 프로세스/문서화/코드리뷰 경험]',
-    },
-  ],
+
   projects: [
     {
       title: 'Shopping API Server',
       oneLine:
-        '동시성 제어와 재고 무결성, 조회 캐시에 집중한 Spring Boot 쇼핑몰 백엔드',
+        '쇼핑몰의 기능에서 동시 주문 제어와 재고 무결성, 조회 캐시 기능에 집중했습니다.',
       links: {
         github: 'https://github.com/hyosikKim98/shoppingmall',
       },
@@ -98,13 +36,13 @@ const portfolioData = {
         src: 'img/Shopping_Architecture.png',
         alt: 'Shopping API Server 아키텍처 이미지',
         caption:
-          'API 서버, PostgreSQL, Redis 캐시/락, JWT 인증, 모니터링 구성을 한눈에 보여주는 아키텍처 다이어그램입니다.',
+          'API 서버, PostgreSQL, Redis 캐시/락, JWT 인증 구성을 한눈에 보여주는 아키텍처 다이어그램',
       },
       overview: {
         description:
           'JWT 인증, 상품 관리, 주문/취소를 제공하는 쇼핑몰 백엔드입니다. 주문에는 Redis 락과 조건부 재고 차감을 적용해 동시 주문 상황에서도 재고 무결성을 유지하고, 상품 조회에는 Redis 캐시를 적용했습니다.',
-        role: '백엔드 설계 및 구현, 인증/인가, 주문 동시성 제어, 상품 조회 캐시, 문서화, 테스트와 모니터링 구성을 담당했습니다.',
-        tech: 'Java 21, Spring Boot, Spring Security, JWT, MyBatis, PostgreSQL, Redis, Flyway, Prometheus, Grafana, JMeter',
+        role: '백엔드 설계 및 구현, 인증/인가, 주문 동시성 제어, 상품 조회 캐시, 모니터링 구성을 담당했습니다.',
+        tech: 'Backend:[Spring Boot, Spring Security, JWT], DB:[MyBatis, PostgreSQL, Redis, Flyway], Infra:[Prometheus, Grafana, JMeter]',
         feature:
           '회원가입/로그인, 상품 관리, 상품 목록/상세 조회 캐싱, 주문 생성/취소, refresh 토큰 재발급',
       },
@@ -148,7 +86,7 @@ const portfolioData = {
         src: 'img/TIcket_Architecture.png',
         alt: 'Ticketing Server 아키텍처 이미지',
         caption:
-          'Redis 대기열과 활성 슬롯, Kafka 결제 요청, PostgreSQL 재고 차감, Prometheus/Grafana 관측 흐름을 정리한 아키텍처 다이어그램입니다.',
+          'Redis 대기열과 활성 슬롯, Kafka 결제 요청, PostgreSQL 재고 차감, Prometheus/Grafana 관측 흐름을 정리한 아키텍처 다이어그램',
       },
       overview: {
         description:
@@ -300,57 +238,20 @@ function renderHeader() {
       <div class="doc-header-top">
         <div class="doc-header-main">
           <img class="doc-profile-image" src="${data.photo.src}" alt="${data.photo.alt}">
-          <div>
-            <h1 class="doc-title">${data.name}</h1>
-            <p class="role">${data.role}</p>
-            <p class="intro">${data.oneLine}</p>
+          <div class="doc-header-content">
+            <div class="doc-header-copy">
+              <h1 class="doc-title">${data.name}</h1>
+              <p class="role">${data.role}</p>
+        
+            </div>
+            <ul class="meta-list" aria-label="연락처 및 링크">
+              <li><span class="meta-label">Email</span><span class="meta-value">${data.contact.email}</span></li>
+              <li><span class="meta-label">GitHub</span><span class="meta-value">${data.contact.github}</span></li>
+              <li><span class="meta-label">Blog</span><span class="meta-value"><a href="${data.contact.blog}" target="_blank" rel="noopener">[Notion_Blog]</a></span></li>
+            </ul>
           </div>
         </div>
-        <ul class="meta-list" aria-label="연락처 및 링크">
-          <li><span class="meta-label">Email</span><span class="meta-value">${data.contact.email}</span></li>
-          <li><span class="meta-label">GitHub</span><span class="meta-value">${data.contact.github}</span></li>
-          <li><span class="meta-label">Blog</span><span class="meta-value"><a href="${data.contact.blog}" target="_blank" rel="noopener">[Notion_Blog]</a></span></li>
-        </ul>
       </div>
-    </div>
-  `;
-}
-
-function renderToc() {
-  const items = portfolioData.toc
-    .map((item) => `<li><a href="${item.href}">${item.label}</a></li>`)
-    .join('');
-
-  document.getElementById('toc').innerHTML = `
-    <div class="section">
-      <h2 class="section-title">Table of Contents</h2>
-      <p class="section-desc">각 항목을 클릭하면 해당 섹션으로 이동합니다.</p>
-      <ol class="toc-list" id="tocList">${items}</ol>
-    </div>
-  `;
-}
-
-function renderSummary() {
-  const data = portfolioData.summary;
-  document.getElementById('summary').innerHTML = `
-    <div class="section">
-      <h2 class="section-title">Executive Summary</h2>
-      ${data.lines.map((line) => `<p class="paragraph">${line}</p>`).join('')}
-      <ul class="tag-list" aria-label="핵심 키워드">
-        ${data.keywords.map((word) => `<li class="tag">${word}</li>`).join('')}
-      </ul>
-      <dl class="summary-grid" aria-label="요약 메타 정보">
-        ${data.metrics
-          .map(
-            (m) => `
-            <div class="summary-item">
-              <dt>${m.key}</dt>
-              <dd>${m.value}</dd>
-            </div>
-          `,
-          )
-          .join('')}
-      </dl>
     </div>
   `;
 }
@@ -366,51 +267,22 @@ function renderAbout() {
   `;
 }
 
-function renderTechStack() {
-  const rows = portfolioData.techStack
-    .map(
-      (s) => `
-      <tr>
-        <th scope="row">${s.category}</th>
-        <td>${s.skills}<span class="stack-note">${s.note}</span></td>
-      </tr>
-    `,
-    )
-    .join('');
-
-  document.getElementById('tech-stack').innerHTML = `
-    <div class="section" id="tech-stack-section">
-      <h2 class="section-title">Tech Stack</h2>
-      <p class="section-desc">기술 목록과 실제 활용 맥락을 함께 정리합니다.</p>
-      <table class="key-value-table" aria-label="기술 스택 표"><tbody>${rows}</tbody></table>
-    </div>
-  `;
-}
-
 function renderProjects() {
   const entries = portfolioData.projects
     .map(
       (p) => `
       <article class="project-entry">
-        <div class="project-header">
-          <div>
-            <div class="project-title-row">
-              <h3 class="project-title">${p.title}</h3>
-              <a class="project-inline-link" href="${p.links.github}">(GitHub)</a>
+        <div class="project-leading">
+          <div class="project-header">
+            <div>
+              <div class="project-title-row">
+                <h3 class="project-title">${p.title}</h3>
+                <a class="project-inline-link" href="${p.links.github}">[GitHub]</a>
+              </div>
+              <p class="project-one-line">${p.oneLine}</p>
             </div>
-            <p class="project-one-line">${p.oneLine}</p>
           </div>
         </div>
-
-        <h4 class="subsection-title">Architecture</h4>
-        <figure class="architecture-figure">
-          ${
-            p.architectureImage.src
-              ? `<img class="architecture-image" src="${p.architectureImage.src}" alt="${p.architectureImage.alt}">`
-              : `<div class="architecture-placeholder" aria-label="${p.architectureImage.alt}">Architecture Image Placeholder</div>`
-          }
-          <figcaption class="architecture-caption">${p.architectureImage.caption}</figcaption>
-        </figure>
 
         <h4 class="subsection-title">Project Overview</h4>
         <div class="project-grid">
@@ -419,6 +291,15 @@ function renderProjects() {
           <div class="project-block"><strong>사용 기술</strong>${p.overview.tech}</div>
           <div class="project-block"><strong>핵심 기능 요약</strong>${p.overview.feature}</div>
         </div>
+        <h4 class="subsection-title">Architecture</h4>
+          <figure class="architecture-figure">
+            ${
+              p.architectureImage.src
+                ? `<img class="architecture-image" src="${p.architectureImage.src}" alt="${p.architectureImage.alt}">`
+                : `<div class="architecture-placeholder" aria-label="${p.architectureImage.alt}">Architecture Image Placeholder</div>`
+            }
+            <figcaption class="architecture-caption">${p.architectureImage.caption}</figcaption>
+          </figure>
 
         <h4 class="subsection-title">Problem / Approach / Result / What I Learned</h4>
         <div class="project-grid">
@@ -579,10 +460,7 @@ function setupEvents() {
 
 function init() {
   renderHeader();
-  // renderToc();
-  renderSummary();
   renderAbout();
-  renderTechStack();
   renderProjects();
   renderHighlights();
   renderExperience();
