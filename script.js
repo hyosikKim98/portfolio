@@ -48,37 +48,24 @@ const portfolioData = {
       },
       parrl: {
         problem:
-          '동일 상품에 동시 주문이 몰릴 때 oversell이 발생할 수 있었고, 반복 조회가 많은 구간에서는 동일 요청이 DB에 직접 집중될 수 있었습니다.',
+          '동일 상품에 동시 주문이 몰릴 때 oversell이 발생할 가능성이 있고, 인기 상품들은 동일 요청이 DB에 집중될 수 있었습니다.',
         approach:
-          '주문에는 상품별 Redis 락과 DB 조건부 재고 차감을 함께 적용하고, 락 경합과 재고 부족을 429/409 응답으로 분리했습니다. 조회에는 ProductService의 상세/목록 조회 결과를 Redis에 캐싱하고, 상품 변경 시 캐시를 무효화했습니다.',
+          '주문에는 상품별 Redis 락, DB에는 조건부 재고 차감을 함께 적용하고, 락 경합(429)과 재고 부족(409) 응답을 분리했습니다. 조회에는 상세/목록 조회 결과를 Redis에 캐싱하고, 상품 수정이나 삭제 시 캐시를 무효화했습니다.',
         result:
-          '동시성 통합 테스트에서는 initial=100, requests=140 기준 success=100, rejected=40, finalStock=0으로 oversell 없이 검증했고, JMeter와 Grafana에서는 주문 경합의 201/409/429 및 p95/p99, 상품 목록 조회 캐시의 throughput과 Redis activity 변화를 함께 관측할 수 있도록 구성했습니다.',
+          '동시성 통합 테스트에서는 {재고=100, 요청=140 기준 성공=100, 실패=40, 최종 재고=0}으로 oversell 없이 검증했고, JMeter로 주문 경합 시나리오와 인기 상품 조회 시나리오를 Grafana 대시보드로 관측할 수 있게 구성했습니다.',
         learned:
-          '운영 안정성은 락 하나로 끝나지 않고, 트랜잭션 경계, 실패 응답 설계, 캐시 무효화, 테스트 시나리오, 관측 지표까지 함께 설계해야 확보된다는 점을 배웠습니다.',
+          '안정적인 서비스를 위해 안정성을 중첩 설계해야 실제 운영 수준의 신뢰성을 확보할 수 있다는 점을 배웠습니다.',
       },
       engineeringPoints: [
-        '주문 생성/취소 트랜잭션 처리',
         'Redis 락 기반 동시성 제어',
         'DB 조건부 재고 차감으로 oversell 방지',
         '상품 상세/목록 조회 Redis 캐싱',
-        '주문/상품/인증 중심 DB 모델링',
-        '초기 데이터 및 마이그레이션 관리',
-        'OpenAPI 및 기술 문서화',
-        '전역 예외 처리와 에러 코드 표준화',
       ],
-      notes: {
-        troubleshooting:
-          'Redis 장애나 락 경합을 서버 오류가 아니라 제어 가능한 실패 흐름으로 분리했고, 주문 경합은 201/409/429 비율로 관측할 수 있게 정리했습니다.',
-        architecture:
-          'Auth/Product/Order API, MyBatis, PostgreSQL, Redis 캐시/락, JWT 인증 구조로 구성했고, ProductService는 Redis를 통해 상품 상세와 목록 조회를 캐싱합니다.',
-        metric:
-          'integration-test: initial=100, requests=140, success=100, rejected=40, finalStock=0 / scenario A: 201·409·429, p95·p99 / scenario B: product list cache, throughput, Redis activity',
-      },
     },
     {
       title: 'Ticketing Server',
       oneLine:
-        'Redis 대기열·활성 슬롯 제어와 Kafka 비동기 결제로 트래픽 피크를 처리한 티켓팅 백엔드',
+        '티켓팅에서 대기열 제어와 결제 흐름, 재고 정합성 확보에 집중했습니다.',
       links: {
         github: 'https://github.com/hyosikKim98/Ticketing-server',
       },
@@ -91,40 +78,27 @@ const portfolioData = {
       overview: {
         description:
           '대규모 요청이 몰리는 티켓 예매 상황을 가정해, Redis 기반 대기열 및 활성 슬롯 제어와 Kafka 비동기 결제 요청 처리를 중심으로 설계한 Spring Boot 백엔드 프로젝트입니다.',
-        role: '백엔드 전반 구현',
-        tech: 'Java, Spring Boot, Spring Security, JPA, PostgreSQL, Redis, Kafka, Flyway, Prometheus, Grafana, JMeter',
+        role: '백엔드 설계/구현',
+        tech: ' Spring Boot, Spring Security, JPA, PostgreSQL, Redis, Kafka, Flyway, Prometheus, Grafana, JMeter',
         feature:
           'JWT 로그인, Redis ZSET 대기열, 20-slot 입장 제어, 관리자 수동 발급, Kafka 결제 요청 처리, 재고 차감, 운영 메트릭 수집',
       },
       parrl: {
         problem:
-          '동시 접속이 몰리는 예매 환경에서는 요청이 한 번에 결제 단계로 유입되며 병목과 정합성 문제가 발생할 수 있었습니다.',
+          '동시 접속이 몰리는 예매 환경에서는 요청이 한 번에 결제 단계로 유입되면 병목과 정합성 문제가 발생할 수 있었습니다.',
         approach:
-          'Redis ZSET으로 이벤트별 대기열과 활성 슬롯을 관리하고, 결제 요청은 Kafka로 비동기 분리해 DB 저장과 재고 차감을 트랜잭션으로 처리했습니다.',
+          '이벤트별 대기열과 활성 슬롯을 관리하고, 결제 요청은 비동기 분리해 DB 저장과 재고 차감을 트랜잭션으로 처리했습니다.',
         result:
-          'JMeter 200-user mixed-flow와 Prometheus·Grafana 대시보드로 활성 슬롯, 대기열, 결제 이벤트를 재현하고 관측할 수 있는 구조를 구축했습니다.',
+          '대기열과 결제 흐름을 분리해 혼잡 상황에서도 활성 사용자 수와 재고 상태를 안정적으로 제어할 수 있는 구조를 검증했습니다.',
         learned:
-          '고트래픽 환경에서는 요청 처리 자체뿐 아니라 대기열 상태, 중복 결제 방지, 슬롯 만료 처리, 운영 메트릭까지 함께 설계해야 안정성을 확보할 수 있다는 점을 배웠습니다.',
+          '고트래픽 환경에서는 모든 요청을 한 번에 처리하기보다, 요청 처리 순서를 제어함으로서 안정성을 확보할 수 있다는 점을 배웠습니다.',
       },
       engineeringPoints: [
-        'Kafka consumer 트랜잭션 기반 결제 요청 저장 및 재고 차감',
-        'Redis ZSET 기반 대기열 진입 및 순번 조회',
-        '20개 활성 슬롯 기반 자동 입장 토큰 발급',
-        '관리자 상위 N명 수동 발급 로직',
-        '입장 토큰 만료 정리 스케줄러 구현',
-        'PaymentRequest idempotency_key 기반 중복 방지',
-        'Micrometer + Prometheus + Grafana 관측 구성',
-        'OpenAPI 3.0 문서화',
-        '공통 예외 응답 처리',
+        'Redis ZSET으로 대기열 진입과 순번 조회 구현',
+        '활성 사용자 20명만 입장할 수 있도록 토큰 발급',
+        '만료된 입장 토큰을 정리하는 스케줄러 구현',
+        'Kafka consumer에서 결제 요청 저장과 재고 차감을 트랜잭션으로 처리',
       ],
-      notes: {
-        troubleshooting:
-          'Flyway가 실행되지 않아 JPA schema validation이 실패하던 문제를 Boot 4용 Flyway starter와 PostgreSQL 모듈 추가로 해결했습니다.',
-        architecture:
-          'Spring Boot API가 Redis, PostgreSQL, Kafka를 연계해 대기열 진입, 활성 슬롯 발급, 결제 요청 처리를 분리하는 구조입니다.',
-        metric:
-          'JMeter 200-user mixed-flow와 Grafana 대시보드로 active slots, waiting users, queue issue, payment publish, slot turnover를 확인할 수 있습니다.',
-      },
     },
   ],
   highlights: [
@@ -301,23 +275,18 @@ function renderProjects() {
             <figcaption class="architecture-caption">${p.architectureImage.caption}</figcaption>
           </figure>
 
-        <h4 class="subsection-title">Problem / Approach / Result / What I Learned</h4>
+        <h4 class="subsection-title">문제 상황 / 해결 방법 / 결과 / 배운 점</h4>
         <div class="project-grid">
-          <div class="project-block"><strong>Problem</strong>${p.parrl.problem}</div>
-          <div class="project-block"><strong>Approach</strong>${p.parrl.approach}</div>
-          <div class="project-block"><strong>Result</strong>${p.parrl.result}</div>
-          <div class="project-block"><strong>What I Learned</strong>${p.parrl.learned}</div>
+          <div class="project-block"><strong>문제 상황</strong>${p.parrl.problem}</div>
+          <div class="project-block"><strong>해결 방법</strong>${p.parrl.approach}</div>
+          <div class="project-block"><strong>결과</strong>${p.parrl.result}</div>
+          <div class="project-block"><strong>배운 점</strong>${p.parrl.learned}</div>
         </div>
 
         <h4 class="subsection-title">Backend Engineering Points</h4>
         <ul class="tag-list">
           ${p.engineeringPoints.map((point) => `<li class="tag">${point}</li>`).join('')}
         </ul>
-
-        <h4 class="subsection-title">Optional Notes</h4>
-        <p class="paragraph">${p.notes.troubleshooting}</p>
-        <p class="paragraph">${p.notes.architecture}</p>
-        <p class="paragraph">${p.notes.metric}</p>
       </article>
     `,
     )
