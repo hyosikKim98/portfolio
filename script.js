@@ -42,7 +42,7 @@ const portfolioData = {
         description:
           'JWT 인증, 상품 관리, 주문/취소를 제공하는 쇼핑몰 백엔드입니다. 주문에는 Redis 락과 조건부 재고 차감을 적용해 동시 주문 상황에서도 재고 무결성을 유지하고, 상품 조회에는 Redis 캐시를 적용했습니다.',
         role: '백엔드 설계 및 구현, 인증/인가, 주문 동시성 제어, 상품 조회 캐시, 모니터링 구성을 담당했습니다.',
-        tech: 'Backend:[Spring Boot, Spring Security, JWT], DB:[MyBatis, PostgreSQL, Redis, Flyway], Infra:[Prometheus, Grafana, JMeter]',
+        tech: 'Backend:[Spring Boot, JWT, MyBatis], Database:[PostgreSQL, Redis], Tooling:[Flyway, JMeter], Monitoring:[Prometheus, Grafana]',
         feature:
           '회원가입/로그인, 상품 관리, 상품 목록/상세 조회 캐싱, 주문 생성/취소, refresh 토큰 재발급',
       },
@@ -73,13 +73,13 @@ const portfolioData = {
         src: 'img/TIcket_Architecture.png',
         alt: 'Ticketing Server 아키텍처 이미지',
         caption:
-          'Redis 대기열과 활성 슬롯, Kafka 결제 요청, PostgreSQL 재고 차감, Prometheus/Grafana 관측 흐름을 정리한 아키텍처 다이어그램',
+          'Redis 대기열과 활성 슬롯, Kafka (결제 요청+재고 차감)트랜잭션, Prometheus/Grafana 관측 흐름을 정리한 아키텍처 다이어그램',
       },
       overview: {
         description:
           '대규모 요청이 몰리는 티켓 예매 상황을 가정해, Redis 기반 대기열 및 활성 슬롯 제어와 Kafka 비동기 결제 요청 처리를 중심으로 설계한 Spring Boot 백엔드 프로젝트입니다.',
         role: '백엔드 설계/구현',
-        tech: ' Spring Boot, Spring Security, JPA, PostgreSQL, Redis, Kafka, Flyway, Prometheus, Grafana, JMeter',
+        tech: 'Backend:[Spring Boot, JWT, JPA], Messaging:[Kafka], Database:[PostgreSQL, Redis], Tooling:[Flyway, JMeter], Monitoring:[Prometheus, Grafana]',
         feature:
           'JWT 로그인, Redis ZSET 대기열, 20-slot 입장 제어, 관리자 수동 발급, Kafka 결제 요청 처리, 재고 차감, 운영 메트릭 수집',
       },
@@ -105,62 +105,62 @@ const portfolioData = {
     {
       title: 'Redis 락 + 조건부 재고 차감으로 oversell 방지',
       problem:
-        '동시 주문이 몰릴 때 상품 재고가 음수로 내려가거나 중복 차감될 수 있는 위험이 있었습니다.',
+        '같은 상품에 주문이 동시에 몰리면 재고가 음수가 되거나 한 재고가 두 번 차감될 수 있었습니다.',
       cause:
-        '애플리케이션 단의 단순 조회 후 차감만으로는 경쟁 상태를 안전하게 제어하기 어려웠습니다.',
+        '먼저 재고를 조회하고 그다음 차감하는 방식만으로는 동시에 들어오는 주문을 안전하게 막기 어려웠습니다.',
       solution:
-        '상품별 Redis 락을 적용하고, DB에서는 조건부 재고 차감 쿼리를 함께 사용해 oversell을 방지했습니다. 락 경합과 재고 부족은 429/409 응답으로 분리해 관측 가능하게 만들었습니다.',
+        '상품마다 Redis 락을 먼저 잡고, DB에서는 재고가 남아 있을 때만 차감되는 조건부 쿼리를 사용했습니다. 또 락 때문에 실패한 경우(429)와 재고가 없어서 실패한 경우(409)를 나눠서 확인할 수 있게 했습니다.',
       result:
-        '처리량 증가 구간에서 p95/p99와 성공/실패 비율 변화를 함께 확인했고, 재고 소진 시점에도 oversell 없이 제어 가능한 실패 흐름으로 전환되는 패턴을 검증했습니다.',
+        '주문이 몰릴수록 Redis 사용량과 응답 시간이 같이 올라갔고, 후반에는 성공 주문보다 재고 부족 응답이 더 많이 나타났습니다. 중요한 점은 oversell 없이, 실패도 제어 가능한 형태로 처리됐다는 것입니다.',
       dashboards: [
         {
-          src: 'img/shopping_scenarioA.png',
+          src: 'img/shopping_scenarioA2.png',
           alt: 'Shopping API Server Grafana 시나리오 A 대시보드',
           caption:
-            '동일 상품 주문 경합 시 처리량, tail latency, 성공/실패 비율, Redis 활동량을 함께 관찰한 대시보드입니다. 재고 소진 구간에서도 oversell 없이 제어 가능한 실패 흐름으로 전환되는 패턴을 보여줍니다.',
+            '같은 상품에 주문이 몰릴 때 처리량, 응답 시간, 성공/실패 흐름, Redis 락 사용량이 어떻게 변하는지 보여주는 대시보드입니다.',
         },
       ],
     },
     {
       title: '상품 목록 조회 캐싱으로 반복 읽기 비용 절감',
       problem:
-        '자주 반복되는 상품 목록 조회가 모두 DB로 직접 전달되면 읽기 부하가 누적될 수 있었습니다.',
+        '많이 보는 상품 목록을 매번 DB에서 다시 조회하면 읽기 부하가 계속 쌓일 수 있었습니다.',
       cause:
-        '동일 검색 조건이 반복돼도 이를 흡수할 캐싱 계층이 없어 목록 조회가 계속 DB를 호출하고 있었습니다.',
+        '같은 조건의 목록 조회가 반복돼도 이를 저장해 두는 캐시가 없어서 DB를 계속 호출하고 있었습니다.',
       solution:
-        'ProductService.search 결과를 Redis에 캐싱하고, 상품 생성/수정/삭제 시 목록 캐시를 무효화했습니다. 성능 검증은 50% hot page + 50% random page 시나리오로 구성했습니다.',
+        '상품 목록 조회 결과를 Redis에 저장해 두고, 상품이 바뀌면 관련 캐시를 지우도록 했습니다. 검증은 자주 보는 목록 50%, 랜덤 목록 50%로 나눠서 진행했습니다.',
       result:
-        '2xx 비율을 유지한 상태에서 Redis activity 증가와 p95/p99 감소를 함께 확인해, 반복 읽기 경로 일부가 캐시로 흡수되는 패턴을 관찰했습니다.',
+        '성공 비율은 그대로 유지하면서 Redis hit가 miss보다 높게 나왔고, 동시에 p50/p95/p99 지연시간도 더 낮아졌습니다. 반복 조회 요청이 실제로 캐시로 흡수된다는 점을 확인할 수 있었습니다.',
       dashboards: [
         {
-          src: 'img/shopping_scenarioB.png',
+          src: 'img/shopping_scenarioB2.png',
           alt: 'Shopping API Server Grafana 시나리오 B 대시보드',
           caption:
-            '상품 목록 조회 캐시 적용 이후 throughput, tail latency, 성공 비율, Redis activity를 함께 비교한 대시보드입니다. Redis 사용량 증가와 함께 p95/p99가 낮아지는 읽기 최적화 흐름을 보여줍니다.',
+            '상품 목록 캐시 적용 후 처리량, 응답 시간, 성공 비율, Redis hit/miss 변화를 함께 볼 수 있는 대시보드입니다. (왼쪽이 캐싱)',
         },
       ],
     },
-
     {
       title: 'Redis 기반 대기열·활성 슬롯 제어',
       problem:
-        '예매 요청이 한 번에 몰리면 모든 사용자가 동시에 핵심 처리 구간으로 들어와 병목이 발생할 수 있었습니다.',
+        '많은 사용자가 한 번에 결제 단계로 들어오면 서버가 버티기 어렵고, 처리 순서도 꼬일 수 있었습니다.',
       cause:
-        '대기열 없이 바로 처리하면 애플리케이션과 재고 처리 구간의 안정성이 떨어집니다.',
+        '대기열 없이 바로 처리하면 순간적으로 요청이 몰리면서 병목과 정합성 문제가 생기기 쉬웠습니다.',
       solution:
-        'Redis ZSET으로 이벤트별 대기열과 활성 슬롯을 분리 관리하고, 자동 발급과 관리자 수동 발급으로 입장 토큰을 제어하도록 설계했습니다.',
+        'Redis ZSET을 사용해 이벤트별 대기열과 현재 입장 가능한 사용자 수를 따로 관리했습니다. 빈 슬롯이 생기면 다음 사용자에게 자동으로 입장 토큰이 넘어가도록 만들었습니다.',
       result:
-        '활성 슬롯 20개 제한, 대기 사용자 감소, slot release/expire 전환을 JMeter와 Grafana로 함께 관찰할 수 있었습니다.',
+        '활성 슬롯 수를 제한한 상태에서도 대기열이 줄어들고, 결제 완료나 만료에 따라 슬롯이 다시 배분되는 흐름을 확인할 수 있었습니다.',
       dashboards: [
         {
           src: 'img/ticket_dashboard.png',
           alt: 'Ticketing Server Grafana 대시보드',
           caption:
-            '활성 슬롯 수, 대기 사용자 수, queue enter/issue, payment publish/duplicate, slot release/expire 흐름을 관찰한 Grafana 대시보드입니다.',
+            '활성 슬롯 제한 아래에서 대기열이 줄고, 슬롯이 다시 배정되는 흐름을 보여주는 대시보드입니다.',
         },
       ],
     },
   ],
+
   experience: [
     {
       period: '2025.09 - 2026.03',
@@ -308,7 +308,7 @@ function renderHighlights() {
         <h3 class="ordered-title">${i + 1}. ${h.title}</h3>
         <p class="paragraph"><strong>문제:</strong> ${h.problem}</p>
         <p class="paragraph"><strong>원인/고려사항:</strong> ${h.cause}</p>
-        <p class="paragraph"><strong>해결:</strong> ${h.solution}</p>
+        <p class="paragraph"><strong>해결책:</strong> ${h.solution}</p>
         <p class="paragraph"><strong>결과:</strong> ${h.result}</p>
         ${
           h.dashboards && h.dashboards.length
